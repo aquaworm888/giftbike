@@ -1,4 +1,4 @@
-// Version 5
+// Version 6
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -55,12 +55,33 @@ if (typeof Ecwid !== 'undefined') {
 
   // Функция для смены языка магазина
   function changeStoreLanguage(lang) {
-    if (Ecwid.setStorefrontLang) {
-      Ecwid.setStorefrontLang(lang);
-      console.log(`Language changed to: ${lang}`);
-      window.location.reload();
+    console.log('Attempting to change language to:', lang);
+    if (Ecwid && typeof Ecwid.setStorefrontLang === 'function') {
+      try {
+        Ecwid.setStorefrontLang(lang);
+        console.log(`Language changed to: ${lang} via Ecwid.setStorefrontLang`);
+        window.location.reload();
+      } catch (error) {
+        console.error('Error setting store language:', error);
+        // Резервный переход по ссылкам
+        const urls = {
+          en: 'https://gift.bike/',
+          ru: 'https://gift.bike/ru/',
+          lv: 'https://gift.bike/lv/'
+        };
+        console.log(`Falling back to URL redirect: ${urls[lang]}`);
+        window.location.href = urls[lang];
+      }
     } else {
       console.error('Ecwid.setStorefrontLang is not available');
+      // Резервный переход по ссылкам
+      const urls = {
+        en: 'https://gift.bike/',
+        ru: 'https://gift.bike/ru/',
+        lv: 'https://gift.bike/lv/'
+      };
+      console.log(`Falling back to URL redirect: ${urls[lang]}`);
+      window.location.href = urls[lang];
     }
   }
 
@@ -85,7 +106,7 @@ if (typeof Ecwid !== 'undefined') {
       <p>Store Language: ${storeLang}</p>
       <p>Country (by IP): ${country}</p>
       <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
-      <p>Version: 5</p>
+      <p>Version: 6</p>
       <div style="margin-top: 10px;">
         <button onclick="changeStoreLanguage('en')">English</button>
         <button onclick="changeStoreLanguage('ru')">Русский</button>
@@ -136,7 +157,7 @@ if (typeof Ecwid !== 'undefined') {
     if (typeof Ecwid !== 'undefined') {
       setTimeout(() => {
         initModal();
-      }, 1000);
+      }, 3000); // Увеличиваем задержку до 3 секунд
     }
   });
 }
