@@ -29,6 +29,13 @@ if (typeof Ecwid !== 'undefined') {
     }
   }
 
+  // Функция для получения языка из URL
+  function getLanguageFromUrl() {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(ru|lv)\//);
+    return match ? match[1] : 'en'; // Если нет /ru/ или /lv/, считаем английским
+  }
+
   // Функция для получения языка магазина через API
   async function getStoreLanguage() {
     try {
@@ -43,17 +50,6 @@ if (typeof Ecwid !== 'undefined') {
     } catch (error) {
       console.error('Error fetching store language:', error);
       return 'Unknown';
-    }
-  }
-
-  // Функция для смены языка магазина
-  function changeStoreLanguage(lang) {
-    if (Ecwid.setStorefrontLang) {
-      Ecwid.setStorefrontLang(lang);
-      console.log(`Language changed to: ${lang}`);
-      window.location.reload(); // Перезагружаем страницу для применения изменений
-    } else {
-      console.error('Ecwid.setStorefrontLang is not available');
     }
   }
 
@@ -79,10 +75,11 @@ if (typeof Ecwid !== 'undefined') {
       <p>Store Language: ${storeLang}</p>
       <p>Country (by IP): ${country}</p>
       <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
+      <p>Version: 3</p>
       <div style="margin-top: 10px;">
-        <button onclick="changeStoreLanguage('en')">English</button>
-        <button onclick="changeStoreLanguage('ru')">Русский</button>
-        <button onclick="changeStoreLanguage('lv')">Latviski</button>
+        <button onclick="window.location.href='https://gift.bike/'">English</button>
+        <button onclick="window.location.href='https://gift.bike/ru/'">Русский</button>
+        <button onclick="window.location.href='https://gift.bike/lv/'">Latviski</button>
       </div>
       <button style="margin-top: 10px;" onclick="this.parentElement.remove();">Close</button>
     `;
@@ -96,8 +93,14 @@ if (typeof Ecwid !== 'undefined') {
     let storeLang = Ecwid.getStorefrontLang?.() || null;
     console.log('Ecwid.getStorefrontLang result:', storeLang);
     
-    // Если getStorefrontLang не сработал, пробуем API
+    // Если getStorefrontLang не сработал, пробуем URL
     if (!storeLang) {
+      console.log('Falling back to URL for store language');
+      storeLang = getLanguageFromUrl();
+    }
+    
+    // Если URL не дал язык, пробуем API (если токен доступен)
+    if (storeLang === 'Unknown') {
       console.log('Falling back to API for store language');
       storeLang = await getStoreLanguage();
     }
