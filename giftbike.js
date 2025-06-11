@@ -40,7 +40,7 @@ if (typeof Ecwid !== 'undefined') {
   async function getStoreLanguage() {
     try {
       // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
-      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_<YOUR_PUBLIC_TOKEN>', {
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_39m9JHG2hGvffSriWnuL2ajrcGmhL4wg', {
         headers: {
           'Authorization': 'Bearer custom-app-110610642-1'
         }
