@@ -30,6 +30,10 @@ if (typeof Ecwid !== 'undefined') {
 
   // Функция для отображения модального окна
   function showModal(storeLang, browserLang, country, isFirstVisit) {
+    // Проверяем, не отображено ли окно уже
+    if (document.querySelector('div[style*="position: fixed"]')) {
+      return;
+    }
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '50%';
@@ -50,21 +54,30 @@ if (typeof Ecwid !== 'undefined') {
     document.body.appendChild(modal);
   }
 
-  // Хук на загрузку страницы
-  Ecwid.OnPageLoaded.add(async function(page) {
-    // Получаем язык магазина
-    const storeLang = Ecwid.getStorefrontLang() || 'Unknown';
-    // Получаем язык браузера
+  // Функция для инициализации окна
+  async function initModal() {
+    console.log('initModal called, page:', window.location.href); // Отладка
+    const storeLang = Ecwid.getStorefrontLang?.() || 'Unknown';
     const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
-    // Получаем страну по IP
-    const country = await getCountryByIP();
-    // Проверяем, первый ли визит
     const isFirstVisit = !getCookie('firstVisit');
     if (isFirstVisit) {
-      setCookie('firstVisit', 'true', 365); // Устанавливаем cookie на 1 год
+      setCookie('firstVisit', 'true', 365);
     }
-
-    // Показываем модальное окно
+    const country = await getCountryByIP();
     showModal(storeLang, browserLang, country, isFirstVisit);
+  }
+
+  // Пробуем запуск через Ecwid.OnPageLoaded
+  Ecwid.OnPageLoaded.add(function(page) {
+    console.log('Ecwid.OnPageLoaded triggered, page type:', page.type); // Отладка
+    initModal();
+  });
+
+  // Запасной вариант: запускаем через DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded triggered'); // Отладка
+    if (typeof Ecwid !== 'undefined') {
+      initModal();
+    }
   });
 }
