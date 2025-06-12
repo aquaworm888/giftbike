@@ -23,12 +23,3 @@ div[style*="position: fixed"] button {
 div[style*="position: fixed"] button:hover {
   background-color: #0056b3;
 }
-
-div[style*="position: fixed"] span {
-  color: #333;
-  font-weight: bold;
-}
-
-div[style*="position: fixed"] span:hover {
-  color: #ff0000;
-}
