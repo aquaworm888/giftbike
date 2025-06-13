@@ -40,7 +40,7 @@ if (typeof Ecwid !== 'undefined') {
   async function getStoreLanguage() {
     try {
       // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
-      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_SAnPWF9pd8weSmmANuG1qfzYxvyjyfGV', {
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_<YOUR_PUBLIC_TOKEN>', {
         headers: {
           'Authorization': 'Bearer custom-app-110610642-1'
         }
@@ -80,23 +80,38 @@ if (typeof Ecwid !== 'undefined') {
     window.location.href = newUrl;
   }
 
-  // Функция для применения тестового фильтра
-  function applyTestFilter() {
-    console.log('Attempting to apply test filter: priceFrom=20');
-    if (Ecwid && typeof Ecwid.openPage === 'function') {
-      try {
-        Ecwid.openPage('search', { query: 'priceFrom=20' });
-        console.log('Test filter applied via Ecwid.openPage');
-      } catch (error) {
-        console.error('Error applying test filter:', error);
-        console.log('Falling back to URL redirect: https://gift.bike/search?priceFrom=20');
-        window.location.href = 'https://gift.bike/search?priceFrom=20';
-      }
-    } else {
-      console.error('Ecwid.openPage is not available');
-      console.log('Falling back to URL redirect: https://gift.bike/search?priceFrom=20');
-      window.location.href = 'https://gift.bike/search?priceFrom=20';
+  // Функция для фильтрации товаров по языку
+  function filterProductsByLanguage(storeLang) {
+    console.log('Filtering products for language:', storeLang);
+    if (storeLang !== 'ru') {
+      // Для en и lv показываем все товары
+      const products = document.querySelectorAll('.ec-product, .grid-product');
+      products.forEach(product => {
+        product.style.display = '';
+      });
+      console.log('All products shown for language:', storeLang);
+      return;
     }
+
+    // Для ru скрываем товары, в названии которых нет "RU"
+    const products = document.querySelectorAll('.ec-product, .grid-product');
+    let visibleCount = 0;
+    products.forEach(product => {
+      const titleElement = product.querySelector('.ec-product__title, .grid-product__title');
+      if (titleElement) {
+        const title = titleElement.textContent.toUpperCase();
+        if (title.includes('RU')) {
+          product.style.display = '';
+          visibleCount++;
+        } else {
+          product.style.display = 'none';
+        }
+      } else {
+        console.warn('Product title element not found:', product);
+        product.style.display = 'none';
+      }
+    });
+    console.log(`Filtered products for ru: ${visibleCount} visible`);
   }
 
   // Функция для отображения модального окна
@@ -128,7 +143,6 @@ if (typeof Ecwid !== 'undefined') {
         <button onclick="changeStoreLanguage('en')">English</button>
         <button onclick="changeStoreLanguage('ru')">Русский</button>
         <button onclick="changeStoreLanguage('lv')">Latviski</button>
-        <button onclick="applyTestFilter()">Apply Test Filter</button>
       </div>
       <button style="margin-top: 10px;" onclick="this.parentElement.remove(); console.log('Close clicked');">Close</button>
     `;
@@ -138,26 +152,41 @@ if (typeof Ecwid !== 'undefined') {
   // Функция для инициализации окна
   async function initModal() {
     console.log('initModal called, page:', window.location.href);
-    let storeLang = Ecwid.getStorefrontLang?.() || null;
-    console.log('Ecwid.getStorefrontLang result:', storeLang);
-    
-    if (!storeLang) {
-      console.log('Falling back to URL for store language');
-      storeLang = getLanguageFromUrl();
+    try {
+      let storeLang = Ecwid.getStorefrontLang?.() || null;
+      console.log('Ecwid.getStorefrontLang result:', storeLang);
+      
+      if (!storeLang) {
+        console.log('Falling back to URL for store language');
+        storeLang = getLanguageFromUrl();
+      }
+      
+      if (storeLang === 'Unknown') {
+        console.log('Falling back to API for store language');
+        storeLang = await getStoreLanguage();
+      }
+      
+      const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+      const isFirstVisit = !getCookie('firstVisit');
+      if (isFirstVisit) {
+        setCookie('firstVisit', 'true', 365);
+      }
+      const country = await getCountryByIP();
+      showModal(storeLang, browserLang, country, isFirstVisit);
+      // Применяем фильтрацию товаров
+      filterProductsByLanguage(storeLang);
+    } catch (error) {
+      console.error('Error in initModal:', error);
+      // Показываем окно с заглушкой
+      let storeLang = getLanguageFromUrl();
+      const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+      const isFirstVisit = !getCookie('firstVisit');
+      if (isFirstVisit) {
+        setCookie('firstVisit', 'true', 365);
+      }
+      showModal(storeLang, browserLang, 'Unknown', isFirstVisit);
+      filterProductsByLanguage(storeLang);
     }
-    
-    if (storeLang === 'Unknown') {
-      console.log('Falling back to API for store language');
-      storeLang = await getStoreLanguage();
-    }
-    
-    const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
-    const isFirstVisit = !getCookie('firstVisit');
-    if (isFirstVisit) {
-      setCookie('firstVisit', 'true', 365);
-    }
-    const country = await getCountryByIP();
-    showModal(storeLang, browserLang, country, isFirstVisit);
   }
 
   // Пробуем запуск через Ecwid.OnAPILoaded
