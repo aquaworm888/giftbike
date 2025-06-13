@@ -1,4 +1,4 @@
-// Version 10
+// Version 13
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -20,9 +20,9 @@ if (typeof Ecwid !== 'undefined') {
   // Функция для получения страны по IP
   async function getCountryByIP() {
     try {
-      const response = await fetch('https://ipapi.co/json/');
+      const response = await fetch('https://ip-api.com/json/');
       const data = await response.json();
-      return data.country_name || 'Unknown';
+      return data.country || 'Unknown';
     } catch (error) {
       console.error('Error fetching country:', error);
       return 'Unknown';
@@ -39,8 +39,8 @@ if (typeof Ecwid !== 'undefined') {
   // Функция для получения языка магазина через API
   async function getStoreLanguage() {
     try {
-      // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
-      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_EcrUGEksMZ5MYLq8isMjMr1ZsHRgnik2', {
+      // Замените <YOUR_PUBLIC_TOKEN> на публичный токен
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_<YOUR_PUBLIC_TOKEN>', {
         headers: {
           'Authorization': 'Bearer custom-app-110610642-1'
         }
@@ -53,21 +53,20 @@ if (typeof Ecwid !== 'undefined') {
     }
   }
 
-  // Функция для смены языка магазина через URL
-  function changeStoreLanguage(lang) {
-    console.log('Attempting to change language to:', lang);
-    const currentPath = window.location.pathname;
-    const currentSearch = window.location.search;
-    let newPath;
+  // Функция для применения фильтра языка в URL
+  function applyLanguageFilter(lang, currentPath, currentSearch, pageType) {
+    console.log('Applying language filter for:', lang, 'Path:', currentPath, 'Search:', currentSearch, 'PageType:', pageType);
+    let newPath = currentPath;
+    let newSearch = currentSearch;
 
-    // Удаляем текущий язык из пути, если он есть (например, /ru/, /lv/)
+    // Удаляем текущий язык из пути, если он есть
     const cleanPath = currentPath.replace(/^\/(ru|lv)\//, '/');
 
     // Формируем новый путь
     if (lang === 'en') {
-      newPath = cleanPath; // Для английского убираем /lang/
+      newPath = cleanPath;
     } else {
-      newPath = `/${lang}${cleanPath}`; // Добавляем /ru/ или /lv/
+      newPath = `/${lang}${cleanPath}`;
     }
 
     // Убедимся, что путь начинается с /
@@ -75,43 +74,35 @@ if (typeof Ecwid !== 'undefined') {
       newPath = '/' + newPath;
     }
 
-    const newUrl = `https://gift.bike${newPath}${currentSearch}`;
-    console.log(`Redirecting to: ${newUrl}`);
-    window.location.href = newUrl;
-  }
-
-  // Функция для фильтрации товаров по языку
-  function filterProductsByLanguage(storeLang) {
-    console.log('Filtering products for language:', storeLang);
-    if (storeLang !== 'ru') {
-      // Для en и lv показываем все товары
-      const products = document.querySelectorAll('.ec-product, .grid-product');
-      products.forEach(product => {
-        product.style.display = '';
-      });
-      console.log('All products shown for language:', storeLang);
-      return;
+    // Применяем фильтр только для страниц каталога
+    if (lang === 'ru' && (pageType === 'CATEGORY' || pageType === 'SEARCH')) {
+      const params = new URLSearchParams(currentSearch);
+      params.set('attribute_Design+language', 'Russian,Without+captions');
+      newSearch = '?' + params.toString();
+    } else {
+      // Удаляем фильтр для других языков или не-каталожных страниц
+      const params = new URLSearchParams(currentSearch);
+      params.delete('attribute_Design+language');
+      newSearch = params.toString() ? '?' + params.toString() : '';
     }
 
-    // Для ru скрываем товары, в названии которых нет "RU"
-    const products = document.querySelectorAll('.ec-product, .grid-product');
-    let visibleCount = 0;
-    products.forEach(product => {
-      const titleElement = product.querySelector('.ec-product__title, .grid-product__title');
-      if (titleElement) {
-        const title = titleElement.textContent.toUpperCase();
-        if (title.includes('RU')) {
-          product.style.display = '';
-          visibleCount++;
-        } else {
-          product.style.display = 'none';
-        }
-      } else {
-        console.warn('Product title element not found:', product);
-        product.style.display = 'none';
-      }
-    });
-    console.log(`Filtered products for ru: ${visibleCount} visible`);
+    const newUrl = `https://gift.bike${newPath}${newSearch}`;
+    console.log(`Generated URL: ${newUrl}`);
+    return newUrl;
+  }
+
+  // Функция для смены языка магазина через URL
+  function changeStoreLanguage(lang) {
+    console.log('Attempting to change language to:', lang);
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    // Определяем тип страницы
+    const pageType = Ecwid.getCurrentPage?.()?.type || 'UNKNOWN';
+    const newUrl = applyLanguageFilter(lang, currentPath, currentSearch, pageType);
+    // Сохраняем выбранный язык
+    setCookie('selectedLanguage', lang, 365);
+    console.log(`Redirecting to: ${newUrl}`);
+    window.location.href = newUrl;
   }
 
   // Функция для отображения модального окна
@@ -138,7 +129,7 @@ if (typeof Ecwid !== 'undefined') {
       <p>Store Language: ${storeLang}</p>
       <p>Country (by IP): ${country}</p>
       <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
-      <p>Version: 10</p>
+      <p>Version: 13</p>
       <div style="margin-top: 10px;">
         <button onclick="changeStoreLanguage('en')">English</button>
         <button onclick="changeStoreLanguage('ru')">Русский</button>
@@ -153,6 +144,26 @@ if (typeof Ecwid !== 'undefined') {
   async function initModal() {
     console.log('initModal called, page:', window.location.href);
     try {
+      // Проверяем первое посещение
+      const isFirstVisit = !getCookie('firstVisit');
+      if (!isFirstVisit) {
+        console.log('Not first visit, skipping modal');
+        // Применяем фильтр, если на каталожной странице
+        const storeLang = getLanguageFromUrl();
+        const pageType = Ecwid.getCurrentPage?.()?.type || 'UNKNOWN';
+        if (storeLang === 'ru' && (pageType === 'CATEGORY' || pageType === 'SEARCH')) {
+          const currentPath = window.location.pathname;
+          const currentSearch = window.location.search;
+          const newUrl = applyLanguageFilter(storeLang, currentPath, currentSearch, pageType);
+          if (newUrl !== window.location.href) {
+            console.log(`Applying filter on page load, redirecting to: ${newUrl}`);
+            window.location.href = newUrl;
+          }
+        }
+        return;
+      }
+
+      // Получаем данные
       let storeLang = Ecwid.getStorefrontLang?.() || null;
       console.log('Ecwid.getStorefrontLang result:', storeLang);
       
@@ -165,27 +176,48 @@ if (typeof Ecwid !== 'undefined') {
         console.log('Falling back to API for store language');
         storeLang = await getStoreLanguage();
       }
-      
+
       const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
-      const isFirstVisit = !getCookie('firstVisit');
-      if (isFirstVisit) {
-        setCookie('firstVisit', 'true', 365);
-      }
       const country = await getCountryByIP();
+
+      // Проверяем условия для отображения окна
+      if (country !== 'Latvia' || !browserLang.startsWith('en')) {
+        console.log('Conditions not met for modal:', { country, browserLang });
+        setCookie('firstVisit', 'true', 365);
+        // Применяем фильтр, если на каталожной странице
+        if (storeLang === 'ru' && (Ecwid.getCurrentPage?.()?.type === 'CATEGORY' || Ecwid.getCurrentPage?.()?.type === 'SEARCH')) {
+          const currentPath = window.location.pathname;
+          const currentSearch = window.location.search;
+          const newUrl = applyLanguageFilter(storeLang, currentPath, currentSearch, Ecwid.getCurrentPage?.()?.type || 'UNKNOWN');
+          if (newUrl !== window.location.href) {
+            console.log(`Applying filter on page load, redirecting to: ${newUrl}`);
+            window.location.href = newUrl;
+          }
+        }
+        return;
+      }
+
+      // Показываем окно и устанавливаем cookie
+      setCookie('firstVisit', 'true', 365);
       showModal(storeLang, browserLang, country, isFirstVisit);
-      // Применяем фильтрацию товаров
-      filterProductsByLanguage(storeLang);
     } catch (error) {
       console.error('Error in initModal:', error);
-      // Показываем окно с заглушкой
-      let storeLang = getLanguageFromUrl();
-      const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+      // Показываем окно с заглушкой, если условия выполнены
       const isFirstVisit = !getCookie('firstVisit');
-      if (isFirstVisit) {
-        setCookie('firstVisit', 'true', 365);
+      if (!isFirstVisit) {
+        console.log('Not first visit, skipping modal');
+        return;
       }
-      showModal(storeLang, browserLang, 'Unknown', isFirstVisit);
-      filterProductsByLanguage(storeLang);
+      const storeLang = getLanguageFromUrl();
+      const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+      const country = 'Unknown';
+      if (country !== 'Latvia' || !browserLang.startsWith('en')) {
+        console.log('Conditions not met for modal:', { country, browserLang });
+        setCookie('firstVisit', 'true', 365);
+        return;
+      }
+      setCookie('firstVisit', 'true', 365);
+      showModal(storeLang, browserLang, country, isFirstVisit);
     }
   }
 
@@ -196,6 +228,17 @@ if (typeof Ecwid !== 'undefined') {
       console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
       if (page.type === 'SEARCH' || page.type === 'CATEGORY') {
         console.log('Filter parameters:', page.filterParams || 'None');
+        // Применяем фильтр для ru на каталожных страницах
+        const storeLang = getLanguageFromUrl();
+        if (storeLang === 'ru') {
+          const currentPath = window.location.pathname;
+          const currentSearch = window.location.search;
+          const newUrl = applyLanguageFilter(storeLang, currentPath, currentSearch, page.type);
+          if (newUrl !== window.location.href) {
+            console.log(`Applying filter on page change, redirecting to: ${newUrl}`);
+            window.location.href = newUrl;
+          }
+        }
       }
       initModal();
     });
