@@ -17,7 +17,9 @@ div[style*="position: fixed"] button {
   padding: 8px 16px;
   cursor: pointer;
   border-radius: 5px;
-  margin: 5px;
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
 }
 
 div[style*="position: fixed"] button:hover {
