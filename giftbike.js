@@ -1,19 +1,13 @@
-// Version 14
-// Функция для установки и проверки cookie
-function setCookie(name, value, days) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+// Version 15
+// Функция для проверки и установки firstVisit в localStorage
+function setFirstVisit() {
+  localStorage.setItem('firstVisit', 'true');
 }
 
-function getCookie(name) {
-  const nameEQ = name + "=";
-  const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i].trim();
-    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-  }
-  return null;
+function isFirstVisit() {
+  const firstVisit = localStorage.getItem('firstVisit');
+  console.log('isFirstVisit check, firstVisit:', firstVisit);
+  return !firstVisit;
 }
 
 // Функция для смены языка через URL
@@ -40,7 +34,7 @@ function changeLanguage(lang) {
 
   const newUrl = `https://gift.bike${newPath}${currentSearch}`;
   console.log(`Redirecting to: ${newUrl}`);
-  setCookie('firstVisit', 'true', 365);
+  setFirstVisit();
   window.location.href = newUrl;
 }
 
@@ -65,13 +59,13 @@ function showModal() {
   modal.style.maxWidth = '400px';
   modal.innerHTML = `
     <p>Welcome! Please choose your language</p>
-    <p>Version: 14</p>
+    <p>Version: 15</p>
     <div style="margin-top: 10px;">
       <button onclick="changeLanguage('en')">ENGLISH</button>
       <button onclick="changeLanguage('ru')">РУССКИЙ</button>
       <button onclick="changeLanguage('lv')">LATVISKI</button>
     </div>
-    <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">Close</button>
+    <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setFirstVisit(); console.log('Close clicked');">Close</button>
   `;
   document.body.appendChild(modal);
 }
@@ -79,10 +73,16 @@ function showModal() {
 // Инициализация окна
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOMContentLoaded triggered, page:', window.location.href);
-  const isFirstVisit = !getCookie('firstVisit');
-  if (isFirstVisit) {
-    showModal();
-  } else {
-    console.log('Not first visit, skipping modal');
+  try {
+    if (isFirstVisit()) {
+      console.log('First visit detected, showing modal');
+      setTimeout(() => {
+        showModal();
+      }, 1000); // Задержка 1 секунда
+    } else {
+      console.log('Not first visit, skipping modal');
+    }
+  } catch (error) {
+    console.error('Error in DOMContentLoaded:', error);
   }
 });
