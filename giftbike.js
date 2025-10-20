@@ -1,4 +1,4 @@
-// Version 7
+// Version 8
 // Функция для установки и проверки cookie
 function setCookie(name, value, days) {
   const expires = new Date();
@@ -71,6 +71,7 @@ function applyTestFilter() {
 // Функция для отображения модального окна
 function showModal(storeLang, browserLang, country, isFirstVisit) {
   if (document.querySelector('div[style*="position: fixed"]')) {
+    console.log('Modal already exists, skipping');
     return;
   }
   console.log('Showing modal with:', { storeLang, browserLang, country, isFirstVisit });
@@ -87,12 +88,12 @@ function showModal(storeLang, browserLang, country, isFirstVisit) {
   modal.style.borderRadius = '8px';
   modal.style.maxWidth = '400px';
   modal.innerHTML = `
-    <span style="position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 20px;" onclick="this.parentElement.remove();">✖</span>
+    <span style="position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 20px;" onclick="this.parentElement.remove(); console.log('Close clicked');">✖</span>
     <p>Browser Language: ${browserLang}</p>
     <p>Store Language: ${storeLang}</p>
     <p>Country (by IP): ${country}</p>
     <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
-    <p>Version: 7</p>
+    <p>Version: 8</p>
     <div style="margin-top: 10px;">
       <button onclick="changeStoreLanguage('en')">English</button>
       <button onclick="changeStoreLanguage('ru')">Русский</button>
@@ -106,18 +107,28 @@ function showModal(storeLang, browserLang, country, isFirstVisit) {
 // Функция для инициализации окна
 async function initModal() {
   console.log('initModal called, page:', window.location.href);
-  const storeLang = getLanguageFromUrl();
-  const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
-  const isFirstVisit = !getCookie('firstVisit');
-  if (isFirstVisit) {
-    setCookie('firstVisit', 'true', 365);
+  try {
+    const storeLang = getLanguageFromUrl();
+    const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+    const isFirstVisit = !getCookie('firstVisit');
+    if (isFirstVisit) {
+      setCookie('firstVisit', 'true', 365);
+    }
+    const country = await getCountryByIP();
+    showModal(storeLang, browserLang, country, isFirstVisit);
+  } catch (error) {
+    console.error('Error in initModal:', error);
+    // Показываем окно с заглушкой для страны, если IP API не работает
+    const storeLang = getLanguageFromUrl();
+    const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+    const isFirstVisit = !getCookie('firstVisit');
+    if (isFirstVisit) {
+      setCookie('firstVisit', 'true', 365);
+    }
+    showModal(storeLang, browserLang, 'Unknown', isFirstVisit);
   }
-  const country = await getCountryByIP();
-  showModal(storeLang, browserLang, country, isFirstVisit);
 }
 
-// Запускаем сразу при загрузке DOM
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded triggered');
-  initModal();
-});
+// Запускаем сразу
+console.log('Script loaded, calling initModal');
+initModal();
