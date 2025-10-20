@@ -1,3 +1,4 @@
+// Version 3
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -28,12 +29,41 @@ if (typeof Ecwid !== 'undefined') {
     }
   }
 
+  // Функция для получения языка магазина через API
+  async function getStoreLanguage() {
+    try {
+      // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_<YOUR_PUBLIC_TOKEN>', {
+        headers: {
+          'Authorization': 'Bearer custom-app-110610642-1'
+        }
+      });
+      const data = await response.json();
+      return data.language || 'Unknown';
+    } catch (error) {
+      console.error('Error fetching store language:', error);
+      return 'Unknown';
+    }
+  }
+
+  // Функция для смены языка магазина
+  function changeStoreLanguage(lang) {
+    if (Ecwid.setStorefrontLang) {
+      Ecwid.setStorefrontLang(lang);
+      console.log(`Language changed to: ${lang}`);
+      window.location.reload(); // Перезагружаем страницу для применения изменений
+    } else {
+      console.error('Ecwid.setStorefrontLang is not available');
+    }
+  }
+
   // Функция для отображения модального окна
   function showModal(storeLang, browserLang, country, isFirstVisit) {
     // Проверяем, не отображено ли окно уже
     if (document.querySelector('div[style*="position: fixed"]')) {
       return;
     }
+    console.log('Showing modal with:', { storeLang, browserLang, country, isFirstVisit });
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '50%';
@@ -49,15 +79,29 @@ if (typeof Ecwid !== 'undefined') {
       <p>Store Language: ${storeLang}</p>
       <p>Country (by IP): ${country}</p>
       <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
-      <button onclick="this.parentElement.remove();">Close</button>
+      <div style="margin-top: 10px;">
+        <button onclick="changeStoreLanguage('en')">English</button>
+        <button onclick="changeStoreLanguage('ru')">Русский</button>
+        <button onclick="changeStoreLanguage('lv')">Latviski</button>
+      </div>
+      <button style="margin-top: 10px;" onclick="this.parentElement.remove();">Close</button>
     `;
     document.body.appendChild(modal);
   }
 
   // Функция для инициализации окна
   async function initModal() {
-    console.log('initModal called, page:', window.location.href); // Отладка
-    const storeLang = Ecwid.getStorefrontLang?.() || 'Unknown';
+    console.log('initModal called, page:', window.location.href);
+    // Пробуем получить язык через Ecwid.getStorefrontLang
+    let storeLang = Ecwid.getStorefrontLang?.() || null;
+    console.log('Ecwid.getStorefrontLang result:', storeLang);
+    
+    // Если getStorefrontLang не сработал, пробуем API
+    if (!storeLang) {
+      console.log('Falling back to API for store language');
+      storeLang = await getStoreLanguage();
+    }
+    
     const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
     const isFirstVisit = !getCookie('firstVisit');
     if (isFirstVisit) {
@@ -67,17 +111,23 @@ if (typeof Ecwid !== 'undefined') {
     showModal(storeLang, browserLang, country, isFirstVisit);
   }
 
-  // Пробуем запуск через Ecwid.OnPageLoaded
-  Ecwid.OnPageLoaded.add(function(page) {
-    console.log('Ecwid.OnPageLoaded triggered, page type:', page.type); // Отладка
-    initModal();
+  // Пробуем запуск через Ecwid.OnAPILoaded
+  Ecwid.OnAPILoaded.add(function() {
+    console.log('Ecwid API loaded');
+    Ecwid.OnPageLoaded.add(function(page) {
+      console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
+      initModal();
+    });
   });
 
   // Запасной вариант: запускаем через DOMContentLoaded
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded triggered'); // Отладка
+    console.log('DOMContentLoaded triggered');
     if (typeof Ecwid !== 'undefined') {
-      initModal();
+      // Дополнительная задержка для главной страницы
+      setTimeout(() => {
+        initModal();
+      }, 1000); // Ждём 1 секунду, чтобы Ecwid SDK успел загрузиться
     }
   });
 }
