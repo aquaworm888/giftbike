@@ -13,7 +13,7 @@ if (typeof Ecwid !== 'undefined') {
         promoBarText.innerText = 'Sveiki';
         console.log('Promo Bar text changed to "Sveiki" (Latvia detected)');
       } else {
-        promoBarText.innerText = 'DPD delivery for 0.96 EUR! Only for Latvian Customers!';
+        promoBarText.innerText = 'Hello!';
         console.log('Promo Bar text set to default (non-Latvia)');
       }
     } else {
