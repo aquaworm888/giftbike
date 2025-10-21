@@ -1,4 +1,4 @@
-// Version 31
+// Version 32
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
@@ -66,12 +66,13 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.left = '50%';
     modal.style.transform = 'translate(-50%, -50%)';
     modal.style.backgroundColor = '#fff';
-    modal.style.padding = '20px 30px'; // Увеличены боковые отступы
+    modal.style.padding = '20px 40px'; // Увеличены боковые отступы до 40px
     modal.style.border = '1px solid #ccc';
     modal.style.zIndex = '1000';
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
+    console.log('Modal styles applied:', modal.style.cssText);
     modal.innerHTML = `
       <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
       <p style="margin-top: 20px;">Please choose your preferred language for product designs and interface.</p>
