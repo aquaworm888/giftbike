@@ -1,4 +1,4 @@
-// Version 30
+// Version 31
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
@@ -66,7 +66,7 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.left = '50%';
     modal.style.transform = 'translate(-50%, -50%)';
     modal.style.backgroundColor = '#fff';
-    modal.style.padding = '20px';
+    modal.style.padding = '20px 30px'; // Увеличены боковые отступы
     modal.style.border = '1px solid #ccc';
     modal.style.zIndex = '1000';
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';

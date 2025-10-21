@@ -16,7 +16,7 @@ div[style*="position: fixed"] p:not(.cookie-notice) {
 }
 
 div[style*="position: fixed"] .language-buttons button {
-  background-color: #43a047; /* Светлее и позитивнее зелёный */
+  background-color: #43a047; /* Светлый позитивный зелёный */
   color: white;
   border: none;
   padding: 8px 16px;
@@ -33,7 +33,7 @@ div[style*="position: fixed"] .center-close button {
   background-color: #616161; /* Серый */
   color: white;
   border: none;
-  padding: 6px 12px; /* Уменьшено для меньшего размера */
+  padding: 6px 12px;
   cursor: pointer;
   border-radius: 5px;
   margin: 5px;
@@ -47,7 +47,7 @@ div[style*="position: fixed"] .cookie-notice {
   font-size: 0.8em;
   margin-top: 15px;
   color: #666;
-  text-align: center; /* Центрирование */
+  text-align: center;
 }
 
 div[style*="position: fixed"] .cookie-notice a {
