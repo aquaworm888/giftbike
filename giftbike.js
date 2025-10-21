@@ -1,4 +1,4 @@
-// Version 24
+// Version 25
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
@@ -72,11 +72,10 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
-    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
       <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
       <p>Welcome! Please choose your language</p>
-      <p>Version: 24</p>
+      <p>Version: 25</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>
@@ -115,8 +114,9 @@ if (typeof Ecwid !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded triggered');
     setTimeout(() => {
+      console.log('Delayed initModal call');
       initModal();
-    }, 3000); // Задержка 3 секунды
+    }, 5000); // Задержка 5 секунд
   });
 } else {
   console.error('Ecwid is not defined');

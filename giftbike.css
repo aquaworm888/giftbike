@@ -41,13 +41,9 @@ div[style*="position: fixed"] .cookie-notice a:hover {
 
 div[style*="position: fixed"] .close {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 0;
+  right: 10px;
   cursor: pointer;
   font-size: 20px;
   color: #333;
-}
-
-div[style*="position: fixed"] .close:hover {
-  color: #f00;
 }
