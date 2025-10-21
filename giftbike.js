@@ -1,4 +1,4 @@
-// Version 17
+// Version 19
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -68,14 +68,16 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.maxWidth = '400px';
     modal.innerHTML = `
       <p>Welcome! Please choose your language</p>
-      <p>Version: 17</p>
+      <p>Version: 19</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>
         <button onclick="changeLanguage('lv')">LATVISKI</button>
       </div>
-      <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">Close</button>
       <p class="cookie-notice">By continuing to use this site, you agree to our use of cookies. Learn more in our <a href="https://gift.bike/products/pages/privacy-policy" target="_blank">Privacy Policy</a>.</p>
+      <div class="close-main-container">
+        <button onclick="this.parentElement.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Main close clicked');">Just close this! I don't care</button>
+      </div>
     `;
     document.body.appendChild(modal);
   }

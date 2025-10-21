@@ -11,7 +11,7 @@ div[style*="position: fixed"] p {
 }
 
 div[style*="position: fixed"] button {
-  background-color: #007bff;
+  background-color: #007bff; /* Синий */
   color: white;
   border: none;
   padding: 8px 16px;
@@ -21,7 +21,7 @@ div[style*="position: fixed"] button {
 }
 
 div[style*="position: fixed"] button:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Тёмный синий */
 }
 
 div[style*="position: fixed"] .cookie-notice {
@@ -31,10 +31,15 @@ div[style*="position: fixed"] .cookie-notice {
 }
 
 div[style*="position: fixed"] .cookie-notice a {
-  color: #007bff;
+  color: #007bff; /* Синий */
   text-decoration: underline;
 }
 
 div[style*="position: fixed"] .cookie-notice a:hover {
-  color: #0056b3;
+  color: #0056b3; /* Тёмный синий */
+}
+
+div[style*="position: fixed"] .close-main-container {
+  text-align: center;
+  margin-top: 10px;
 }
