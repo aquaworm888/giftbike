@@ -1,4 +1,4 @@
-// Version 19
+// Version 20
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -66,9 +66,11 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
+    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
+      <button class="close-btn" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close button clicked');">×</button>
       <p>Welcome! Please choose your language</p>
-      <p>Version: 19</p>
+      <p>Version: 20</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>

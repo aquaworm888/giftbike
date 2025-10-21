@@ -43,3 +43,21 @@ div[style*="position: fixed"] .close-main-container {
   text-align: center;
   margin-top: 10px;
 }
+
+div[style*="position: fixed"] .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  padding: 0;
+  border-radius: 4px;
+  background-color: #007bff; /* Синий */
+}
+
+div[style*="position: fixed"] .close-btn:hover {
+  background-color: #0056b3; /* Тёмный синий */
+}
