@@ -1,4 +1,4 @@
-// Version 25
+// Version 26
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
@@ -74,15 +74,16 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.maxWidth = '400px';
     modal.innerHTML = `
       <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
-      <p>Welcome! Please choose your language</p>
-      <p>Version: 25</p>
+      <p>Please choose your language for product designs and interface.</p>
       <div style="margin-top: 10px;">
-        <button onclick="changeLanguage('en')">ENGLISH</button>
-        <button onclick="changeLanguage('ru')">РУССКИЙ</button>
-        <button onclick="changeLanguage('lv')">LATVISKI</button>
+        <button onclick="changeLanguage('en')">English</button>
+        <button onclick="changeLanguage('ru')">Русский</button>
+        <button onclick="changeLanguage('lv')">Latviski</button>
       </div>
       <p class="cookie-notice">By continuing to use this site, you agree to our use of cookies. Learn more in our <a href="https://gift.bike/products/pages/privacy-policy" target="_blank">Privacy Policy</a>.</p>
-      <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">Close</button>
+      <div class="center-close">
+        <button onclick="this.parentElement.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">I don't care</button>
+      </div>
     `;
     document.body.appendChild(modal);
     console.log('Modal appended to body');
