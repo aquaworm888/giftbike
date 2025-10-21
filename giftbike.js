@@ -1,4 +1,4 @@
-// Version 29
+// Version 30
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
@@ -74,7 +74,7 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.maxWidth = '400px';
     modal.innerHTML = `
       <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
-      <p style="margin-top: 20px;">Please choose your language for product designs and store browsing.</p>
+      <p style="margin-top: 20px;">Please choose your preferred language for product designs and interface.</p>
       <div class="language-buttons">
         <button onclick="changeLanguage('en')">English</button>
         <button onclick="changeLanguage('ru')">Русский</button>
