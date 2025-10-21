@@ -44,9 +44,9 @@ div[style*="position: fixed"] .close {
   top: 0;
   right: 10px;
   cursor: pointer;
-  font-size: 24px; /* Увеличен с 20px */
+  font-size: 24px;
   color: #333;
-  padding: 5px; /* Для удобства нажатия */
+  padding: 5px;
 }
 
 div[style*="position: fixed"] .close:hover {
@@ -55,5 +55,11 @@ div[style*="position: fixed"] .close:hover {
 
 div[style*="position: fixed"] .center-close {
   text-align: center;
+  margin-top: 10px;
+}
+
+div[style*="position: fixed"] .language-buttons {
+  display: flex;
+  justify-content: space-between;
   margin-top: 10px;
 }
