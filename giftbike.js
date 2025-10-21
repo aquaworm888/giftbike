@@ -1,4 +1,4 @@
-// Version 3
+// Version 5
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -33,14 +33,14 @@ if (typeof Ecwid !== 'undefined') {
   function getLanguageFromUrl() {
     const path = window.location.pathname;
     const match = path.match(/^\/(ru|lv)\//);
-    return match ? match[1] : 'en'; // Если нет /ru/ или /lv/, считаем английским
+    return match ? match[1] : 'en';
   }
 
   // Функция для получения языка магазина через API
   async function getStoreLanguage() {
     try {
       // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
-      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_39m9JHG2hGvffSriWnuL2ajrcGmhL4wg', {
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_<YOUR_PUBLIC_TOKEN>', {
         headers: {
           'Authorization': 'Bearer custom-app-110610642-1'
         }
@@ -53,9 +53,19 @@ if (typeof Ecwid !== 'undefined') {
     }
   }
 
+  // Функция для смены языка магазина
+  function changeStoreLanguage(lang) {
+    if (Ecwid.setStorefrontLang) {
+      Ecwid.setStorefrontLang(lang);
+      console.log(`Language changed to: ${lang}`);
+      window.location.reload();
+    } else {
+      console.error('Ecwid.setStorefrontLang is not available');
+    }
+  }
+
   // Функция для отображения модального окна
   function showModal(storeLang, browserLang, country, isFirstVisit) {
-    // Проверяем, не отображено ли окно уже
     if (document.querySelector('div[style*="position: fixed"]')) {
       return;
     }
@@ -75,11 +85,11 @@ if (typeof Ecwid !== 'undefined') {
       <p>Store Language: ${storeLang}</p>
       <p>Country (by IP): ${country}</p>
       <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
-      <p>Version: 3</p>
+      <p>Version: 5</p>
       <div style="margin-top: 10px;">
-        <button onclick="window.location.href='https://gift.bike/'">English</button>
-        <button onclick="window.location.href='https://gift.bike/ru/'">Русский</button>
-        <button onclick="window.location.href='https://gift.bike/lv/'">Latviski</button>
+        <button onclick="changeStoreLanguage('en')">English</button>
+        <button onclick="changeStoreLanguage('ru')">Русский</button>
+        <button onclick="changeStoreLanguage('lv')">Latviski</button>
       </div>
       <button style="margin-top: 10px;" onclick="this.parentElement.remove();">Close</button>
     `;
@@ -89,17 +99,14 @@ if (typeof Ecwid !== 'undefined') {
   // Функция для инициализации окна
   async function initModal() {
     console.log('initModal called, page:', window.location.href);
-    // Пробуем получить язык через Ecwid.getStorefrontLang
     let storeLang = Ecwid.getStorefrontLang?.() || null;
     console.log('Ecwid.getStorefrontLang result:', storeLang);
     
-    // Если getStorefrontLang не сработал, пробуем URL
     if (!storeLang) {
       console.log('Falling back to URL for store language');
       storeLang = getLanguageFromUrl();
     }
     
-    // Если URL не дал язык, пробуем API (если токен доступен)
     if (storeLang === 'Unknown') {
       console.log('Falling back to API for store language');
       storeLang = await getStoreLanguage();
@@ -127,10 +134,9 @@ if (typeof Ecwid !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded triggered');
     if (typeof Ecwid !== 'undefined') {
-      // Дополнительная задержка для главной страницы
       setTimeout(() => {
         initModal();
-      }, 1000); // Ждём 1 секунду, чтобы Ecwid SDK успел загрузиться
+      }, 1000);
     }
   });
 }
