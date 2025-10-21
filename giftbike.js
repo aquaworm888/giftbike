@@ -1,9 +1,9 @@
-// Version 21
+// Version 23
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
     const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000);
     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     console.log(`Set cookie: ${name}=${value}`);
   }
@@ -66,20 +66,17 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
-    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
-      <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close span clicked');">&times;</span>
+      <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
       <p>Welcome! Please choose your language</p>
-      <p>Version: 21</p>
+      <p>Version: 23</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>
         <button onclick="changeLanguage('lv')">LATVISKI</button>
       </div>
       <p class="cookie-notice">By continuing to use this site, you agree to our use of cookies. Learn more in our <a href="https://gift.bike/products/pages/privacy-policy" target="_blank">Privacy Policy</a>.</p>
-      <div class="close-main-container">
-        <button onclick="this.parentElement.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Main close clicked');">Just close this! I don't care</button>
-      </div>
+      <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">Close</button>
     `;
     document.body.appendChild(modal);
   }
