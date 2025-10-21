@@ -1,11 +1,10 @@
-// Version 20
+// Version 3
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
     const expires = new Date();
     expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-    console.log(`Set cookie: ${name}=${value}`);
   }
 
   function getCookie(name) {
@@ -15,45 +14,52 @@ if (typeof Ecwid !== 'undefined') {
       let c = ca[i].trim();
       if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
-    console.log(`Get cookie: ${name}=null`);
     return null;
   }
 
-  // Функция для смены языка через URL
-  function changeLanguage(lang) {
-    console.log('Attempting to change language to:', lang);
-    const currentPath = window.location.pathname;
-    const currentSearch = window.location.search;
-    let newPath;
-
-    // Удаляем текущий язык из пути, если он есть
-    const cleanPath = currentPath.replace(/^\/(ru|lv)\//, '/');
-
-    // Формируем новый путь
-    if (lang === 'en') {
-      newPath = cleanPath;
-    } else {
-      newPath = `/${lang}${cleanPath}`;
+  // Функция для получения страны по IP
+  async function getCountryByIP() {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      return data.country_name || 'Unknown';
+    } catch (error) {
+      console.error('Error fetching country:', error);
+      return 'Unknown';
     }
+  }
 
-    // Убедимся, что путь начинается с /
-    if (!newPath.startsWith('/')) {
-      newPath = '/' + newPath;
+  // Функция для получения языка из URL
+  function getLanguageFromUrl() {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(ru|lv)\//);
+    return match ? match[1] : 'en'; // Если нет /ru/ или /lv/, считаем английским
+  }
+
+  // Функция для получения языка магазина через API
+  async function getStoreLanguage() {
+    try {
+      // Замените <YOUR_PUBLIC_TOKEN> на ваш публичный токен
+      const response = await fetch('https://app.ecwid.com/api/v3/110610642/profile?token=public_39m9JHG2hGvffSriWnuL2ajrcGmhL4wg', {
+        headers: {
+          'Authorization': 'Bearer custom-app-110610642-1'
+        }
+      });
+      const data = await response.json();
+      return data.language || 'Unknown';
+    } catch (error) {
+      console.error('Error fetching store language:', error);
+      return 'Unknown';
     }
-
-    const newUrl = `https://gift.bike${newPath}${currentSearch}`;
-    console.log(`Redirecting to: ${newUrl}`);
-    setCookie('firstVisit', 'true', 365);
-    window.location.href = newUrl;
   }
 
   // Функция для отображения модального окна
-  function showModal() {
+  function showModal(storeLang, browserLang, country, isFirstVisit) {
+    // Проверяем, не отображено ли окно уже
     if (document.querySelector('div[style*="position: fixed"]')) {
-      console.log('Modal already exists, skipping');
       return;
     }
-    console.log('Showing modal');
+    console.log('Showing modal with:', { storeLang, browserLang, country, isFirstVisit });
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '50%';
@@ -64,53 +70,67 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.border = '1px solid #ccc';
     modal.style.zIndex = '1000';
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    modal.style.borderRadius = '8px';
-    modal.style.maxWidth = '400px';
-    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
-      <button class="close-btn" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close button clicked');">×</button>
-      <p>Welcome! Please choose your language</p>
-      <p>Version: 20</p>
+      <p>Browser Language: ${browserLang}</p>
+      <p>Store Language: ${storeLang}</p>
+      <p>Country (by IP): ${country}</p>
+      <p>Visit: ${isFirstVisit ? 'First Visit' : 'Returning Visit'}</p>
+      <p>Version: 3</p>
       <div style="margin-top: 10px;">
-        <button onclick="changeLanguage('en')">ENGLISH</button>
-        <button onclick="changeLanguage('ru')">РУССКИЙ</button>
-        <button onclick="changeLanguage('lv')">LATVISKI</button>
+        <button onclick="window.location.href='https://gift.bike/'">English</button>
+        <button onclick="window.location.href='https://gift.bike/ru/'">Русский</button>
+        <button onclick="window.location.href='https://gift.bike/lv/'">Latviski</button>
       </div>
-      <p class="cookie-notice">By continuing to use this site, you agree to our use of cookies. Learn more in our <a href="https://gift.bike/products/pages/privacy-policy" target="_blank">Privacy Policy</a>.</p>
-      <div class="close-main-container">
-        <button onclick="this.parentElement.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Main close clicked');">Just close this! I don't care</button>
-      </div>
+      <button style="margin-top: 10px;" onclick="this.parentElement.remove();">Close</button>
     `;
     document.body.appendChild(modal);
   }
 
   // Функция для инициализации окна
-  function initModal() {
+  async function initModal() {
     console.log('initModal called, page:', window.location.href);
-    try {
-      const isFirstVisit = !getCookie('firstVisit');
-      console.log('isFirstVisit:', isFirstVisit);
-      if (isFirstVisit) {
-        showModal();
-      } else {
-        console.log('Not first visit, skipping modal');
-      }
-    } catch (error) {
-      console.error('Error in initModal:', error);
+    // Пробуем получить язык через Ecwid.getStorefrontLang
+    let storeLang = Ecwid.getStorefrontLang?.() || null;
+    console.log('Ecwid.getStorefrontLang result:', storeLang);
+    
+    // Если getStorefrontLang не сработал, пробуем URL
+    if (!storeLang) {
+      console.log('Falling back to URL for store language');
+      storeLang = getLanguageFromUrl();
     }
+    
+    // Если URL не дал язык, пробуем API (если токен доступен)
+    if (storeLang === 'Unknown') {
+      console.log('Falling back to API for store language');
+      storeLang = await getStoreLanguage();
+    }
+    
+    const browserLang = navigator.language || navigator.languages[0] || 'Unknown';
+    const isFirstVisit = !getCookie('firstVisit');
+    if (isFirstVisit) {
+      setCookie('firstVisit', 'true', 365);
+    }
+    const country = await getCountryByIP();
+    showModal(storeLang, browserLang, country, isFirstVisit);
   }
 
-  // Пробуем запуск через Ecwid.OnPageLoaded
-  Ecwid.OnPageLoaded.add(function(page) {
-    console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
-    initModal();
+  // Пробуем запуск через Ecwid.OnAPILoaded
+  Ecwid.OnAPILoaded.add(function() {
+    console.log('Ecwid API loaded');
+    Ecwid.OnPageLoaded.add(function(page) {
+      console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
+      initModal();
+    });
   });
 
-  // Запасной вариант: запускаем через DOMContentLoaded с задержкой
+  // Запасной вариант: запускаем через DOMContentLoaded
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded triggered');
-    setTimeout(() => {
-      initModal();
-    }, 1000); // Задержка 1 секунда
+    if (typeof Ecwid !== 'undefined') {
+      // Дополнительная задержка для главной страницы
+      setTimeout(() => {
+        initModal();
+      }, 1000); // Ждём 1 секунду, чтобы Ecwid SDK успел загрузиться
+    }
   });
 }
