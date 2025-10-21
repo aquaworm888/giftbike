@@ -12,11 +12,11 @@ div[style*="position: fixed"] p {
 
 div[style*="position: fixed"] p:not(.cookie-notice) {
   text-align: center;
-  color: #333333; /* Темно-темно-серый */
+  color: #404040; /* Чуть светлее, чем #333333 */
 }
 
 div[style*="position: fixed"] .language-buttons button {
-  background-color: #2e7d32; /* Позитивно тёмно-зелёный */
+  background-color: #388e3c; /* Яркий позитивный зелёный */
   color: white;
   border: none;
   padding: 8px 16px;
@@ -26,11 +26,11 @@ div[style*="position: fixed"] .language-buttons button {
 }
 
 div[style*="position: fixed"] .language-buttons button:hover {
-  background-color: #1b5e20; /* Более тёмный зелёный */
+  background-color: #2e7d32; /* Чуть темнее зелёный */
 }
 
 div[style*="position: fixed"] .center-close button {
-  background-color: #757575; /* Серый */
+  background-color: #616161; /* Чуть темнее серый */
   color: white;
   border: none;
   padding: 8px 16px;
@@ -40,7 +40,7 @@ div[style*="position: fixed"] .center-close button {
 }
 
 div[style*="position: fixed"] .center-close button:hover {
-  background-color: #616161; /* Тёмный серый */
+  background-color: #424242; /* Ещё темнее серый */
 }
 
 div[style*="position: fixed"] .cookie-notice {
@@ -50,12 +50,12 @@ div[style*="position: fixed"] .cookie-notice {
 }
 
 div[style*="position: fixed"] .cookie-notice a {
-  color: #2e7d32; /* Зелёный для ссылки, чтобы соответствовать кнопкам */
+  color: #388e3c; /* Зелёный для соответствия кнопкам */
   text-decoration: underline;
 }
 
 div[style*="position: fixed"] .cookie-notice a:hover {
-  color: #1b5e20; /* Тёмный зелёный */
+  color: #2e7d32; /* Темнее зелёный */
 }
 
 div[style*="position: fixed"] .close {
