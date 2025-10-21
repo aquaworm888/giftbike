@@ -1,44 +1,33 @@
-// Version 2
+// Version 3 - Using Ecwid.getVisitorLocation()
 if (typeof Ecwid !== 'undefined') {
-  console.log('Ecwid defined, initializing promo bar script');
+  console.log('Ecwid defined, initializing promo bar script with Ecwid API');
 
   // Функция для изменения текста Promo Bar
-  async function updatePromoBar() {
+  function updatePromoBar() {
     const promoBarText = document.querySelector('.ins-tile__text p');
     if (promoBarText) {
       console.log('Promo Bar found, current text:', promoBarText.innerText);
-      let country = localStorage.getItem('userCountry');
-      if (!country) {
-        try {
-          const response = await fetch('https://ipapi.co/json/');
-          const data = await response.json();
-          country = data.country_name || 'Unknown';
-          localStorage.setItem('userCountry', country);
-          console.log('Country fetched:', country);
-        } catch (error) {
-          console.error('Error fetching country:', error);
-          country = 'Unknown';
-        }
-      } else {
-        console.log('Country from localStorage:', country);
-      }
-
-      if (country === 'Latvia') {
+      const location = Ecwid.getVisitorLocation();
+      console.log('Visitor location:', location);
+      if (location && location.countryCode === 'LV') {
         promoBarText.innerText = 'Sveiki';
-        console.log('Promo Bar text changed to "Sveiki"');
+        console.log('Promo Bar text changed to "Sveiki" (Latvia detected)');
       } else {
-        promoBarText.innerText = 'Hello!';
-        console.log('Promo Bar text set to default:', promoBarText.innerText);
+        promoBarText.innerText = 'DPD delivery for 0.96 EUR! Only for Latvian Customers!';
+        console.log('Promo Bar text set to default (non-Latvia)');
       }
     } else {
       console.log('Promo Bar not found');
     }
   }
 
-  // Запуск через Ecwid.OnPageLoaded
-  Ecwid.OnPageLoaded.add(function(page) {
-    console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
-    updatePromoBar();
+  // Ждём загрузки Ecwid API
+  Ecwid.OnAPILoaded.add(function() {
+    console.log('Ecwid API loaded');
+    Ecwid.OnPageLoaded.add(function(page) {
+      console.log('Ecwid.OnPageLoaded triggered, page type:', page.type);
+      updatePromoBar();
+    });
   });
 
   // Запасной вариант через DOMContentLoaded с задержкой
@@ -46,7 +35,11 @@ if (typeof Ecwid !== 'undefined') {
     console.log('DOMContentLoaded triggered');
     setTimeout(() => {
       console.log('Delayed updatePromoBar call');
-      updatePromoBar();
+      if (typeof Ecwid !== 'undefined' && Ecwid.getVisitorLocation) {
+        updatePromoBar();
+      } else {
+        console.log('Ecwid or getVisitorLocation not ready yet');
+      }
     }, 2000); // Задержка 2 секунды
   });
 } else {
