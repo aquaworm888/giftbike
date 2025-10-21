@@ -1,4 +1,4 @@
-// Version 18
+// Version 19
 if (typeof Ecwid !== 'undefined') {
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
@@ -66,18 +66,18 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
-    modal.style.position = 'relative'; // Для позиционирования крестика
+    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
       <button class="close-btn" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close button clicked');">×</button>
       <p>Welcome! Please choose your language</p>
-      <p>Version: 18</p>
+      <p>Version: 19</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>
         <button onclick="changeLanguage('lv')">LATVISKI</button>
       </div>
       <p class="cookie-notice">By continuing to use this site, you agree to our use of cookies. Learn more in our <a href="https://gift.bike/products/pages/privacy-policy" target="_blank">Privacy Policy</a>.</p>
-      <div style="text-align: center; margin-top: 10px;">
+      <div class="close-main-container">
         <button class="close-main" onclick="this.parentElement.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Main close clicked');">Just close this! I don't care</button>
       </div>
     `;
@@ -106,11 +106,11 @@ if (typeof Ecwid !== 'undefined') {
     initModal();
   });
 
-  // Запасной вариант: запускаем через DOMContentLoaded с задержкой
+  // Запасной вариант: запускаем через DOMContentLoaded с увеличенной задержкой
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded triggered');
     setTimeout(() => {
       initModal();
-    }, 1000); // Задержка 1 секунда
+    }, 2000); // Задержка 2 секунды
   });
 }
