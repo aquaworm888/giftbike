@@ -10,8 +10,13 @@ div[style*="position: fixed"] p {
   font-size: 1.1em;
 }
 
-div[style*="position: fixed"] button {
-  background-color: #007bff; /* Синий */
+div[style*="position: fixed"] p:not(.cookie-notice) {
+  text-align: center;
+  color: #333333; /* Темно-темно-серый */
+}
+
+div[style*="position: fixed"] .language-buttons button {
+  background-color: #2e7d32; /* Позитивно тёмно-зелёный */
   color: white;
   border: none;
   padding: 8px 16px;
@@ -20,8 +25,22 @@ div[style*="position: fixed"] button {
   margin: 5px;
 }
 
-div[style*="position: fixed"] button:hover {
-  background-color: #0056b3; /* Тёмный синий */
+div[style*="position: fixed"] .language-buttons button:hover {
+  background-color: #1b5e20; /* Более тёмный зелёный */
+}
+
+div[style*="position: fixed"] .center-close button {
+  background-color: #757575; /* Серый */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+div[style*="position: fixed"] .center-close button:hover {
+  background-color: #616161; /* Тёмный серый */
 }
 
 div[style*="position: fixed"] .cookie-notice {
@@ -31,12 +50,12 @@ div[style*="position: fixed"] .cookie-notice {
 }
 
 div[style*="position: fixed"] .cookie-notice a {
-  color: #007bff; /* Синий */
+  color: #2e7d32; /* Зелёный для ссылки, чтобы соответствовать кнопкам */
   text-decoration: underline;
 }
 
 div[style*="position: fixed"] .cookie-notice a:hover {
-  color: #0056b3; /* Тёмный синий */
+  color: #1b5e20; /* Тёмный зелёный */
 }
 
 div[style*="position: fixed"] .close {

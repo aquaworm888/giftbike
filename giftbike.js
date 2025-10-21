@@ -1,4 +1,4 @@
-// Version 27
+// Version 28
 if (typeof Ecwid !== 'undefined') {
   console.log('Ecwid defined, initializing script');
 
