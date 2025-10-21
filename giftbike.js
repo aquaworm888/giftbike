@@ -1,9 +1,11 @@
-// Version 23
+// Version 24
 if (typeof Ecwid !== 'undefined') {
+  console.log('Ecwid defined, initializing script');
+
   // Функция для установки и проверки cookie
   function setCookie(name, value, days) {
     const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000);
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     console.log(`Set cookie: ${name}=${value}`);
   }
@@ -49,6 +51,10 @@ if (typeof Ecwid !== 'undefined') {
 
   // Функция для отображения модального окна
   function showModal() {
+    if (!document.body) {
+      console.error('document.body is not available');
+      return;
+    }
     if (document.querySelector('div[style*="position: fixed"]')) {
       console.log('Modal already exists, skipping');
       return;
@@ -66,10 +72,11 @@ if (typeof Ecwid !== 'undefined') {
     modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
     modal.style.borderRadius = '8px';
     modal.style.maxWidth = '400px';
+    modal.style.position = 'relative'; // Для крестика
     modal.innerHTML = `
       <span class="close" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">&times;</span>
       <p>Welcome! Please choose your language</p>
-      <p>Version: 23</p>
+      <p>Version: 24</p>
       <div style="margin-top: 10px;">
         <button onclick="changeLanguage('en')">ENGLISH</button>
         <button onclick="changeLanguage('ru')">РУССКИЙ</button>
@@ -79,6 +86,7 @@ if (typeof Ecwid !== 'undefined') {
       <button style="margin-top: 10px;" onclick="this.parentElement.remove(); setCookie('firstVisit', 'true', 365); console.log('Close clicked');">Close</button>
     `;
     document.body.appendChild(modal);
+    console.log('Modal appended to body');
   }
 
   // Функция для инициализации окна
@@ -103,11 +111,13 @@ if (typeof Ecwid !== 'undefined') {
     initModal();
   });
 
-  // Запасной вариант: запускаем через DOMContentLoaded с задержкой
+  // Запасной вариант: запускаем через DOMContentLoaded с увеличенной задержкой
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded triggered');
     setTimeout(() => {
       initModal();
-    }, 1000); // Задержка 1 секунда
+    }, 3000); // Задержка 3 секунды
   });
+} else {
+  console.error('Ecwid is not defined');
 }
